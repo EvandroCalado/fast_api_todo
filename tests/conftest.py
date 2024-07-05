@@ -25,8 +25,8 @@ def client(session: Session):
 @pytest.fixture()
 def session():
     engine = create_engine(
-        "sqlite:///:memory:",
-        connect_args={"check_same_thread": False},
+        'sqlite:///:memory:',
+        connect_args={'check_same_thread': False},
         poolclass=StaticPool,
     )
     table_registry.metadata.create_all(engine)
@@ -40,16 +40,16 @@ def session():
 @pytest.fixture()
 def user(session: Session):
     user = User(
-        username="test",
-        email="test@email.com",
-        password=get_password_hash("test"),
+        username='test',
+        email='test@email.com',
+        password=get_password_hash('test'),
     )
 
     session.add(user)
     session.commit()
     session.refresh(user)
 
-    user.clean_password = "test"  # type: ignore
+    user.clean_password = 'test'  # type: ignore
 
     return user
 
@@ -57,8 +57,8 @@ def user(session: Session):
 @pytest.fixture()
 def token(client, user):
     response = client.post(
-        "/token",
-        data={"username": user.email, "password": user.clean_password},
+        '/auth/token',
+        data={'username': user.email, 'password': user.clean_password},
     )
 
-    return response.json()["access_token"]
+    return response.json()['access_token']

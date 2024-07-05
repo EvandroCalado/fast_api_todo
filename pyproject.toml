@@ -39,7 +39,7 @@ quote-style = 'single'
 
 [tool.taskipy.tasks]
 dev = 'fastapi dev fast_api_todo/app.py'
-test = 'pytest -s -x --cov=fast_api_todo -vv'
+test = 'pytest --cov=fast_api_todo -vv'
 pre_test = 'task lint'
 post_test = 'coverage html'
 lint = 'ruff check . ; ruff check . --diff'
