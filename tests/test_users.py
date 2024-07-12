@@ -90,20 +90,20 @@ def test_get_users_with_user(client, user):
 def test_get_user(client, user):
     UserPublicSchema.model_validate(user).model_dump()
 
-    response = client.get('/users/1')
+    response = client.get(f'/users/{user.id}')
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
         'id': 1,
-        'username': 'test',
-        'email': 'test@email.com',
+        'username': user.username,
+        'email': user.email,
     }
 
 
-def test_get_user_if_not_existis(client, user):
-    UserPublicSchema.model_validate(user).model_dump()
+def test_get_user_if_not_existis(client, other_user):
+    UserPublicSchema.model_validate(other_user).model_dump()
 
-    response = client.get('/users/2')
+    response = client.get(f'/users/{other_user.id + 1}')
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {
@@ -130,13 +130,14 @@ def test_update_user(client, user, token):
     }
 
 
-def test_update_user_if_not_existis(client, user):
+def test_update_user_if_not_existis(client, other_user, token):
     response = client.put(
-        '/users/2',
+        f'/users/{other_user.id}',
+        headers={'Autorization': f'Bearer {token}'},
         json={
-            'username': 'test2',
-            'email': 'test2@example.com',
-            'password': 'test2',
+            'username': 'test',
+            'email': 'test@example.com',
+            'password': 'test',
         },
     )
 
@@ -169,11 +170,13 @@ def test_delete_user(client, user, token):
     assert response.json() == {'message': 'User deleted'}
 
 
-def test_delete_user_not_found(client):
-    response = client.delete('/users/3')
+def test_delete_user_not_found(client, other_user, token):
+    response = client.delete(
+        f'/users/{other_user.id}', headers={'Authorization': f'Bearer {token}'}
+    )
 
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
-    assert response.json() == {'detail': 'Not authenticated'}
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json() == {'detail': 'Not enough permission'}
 
 
 def test_delete_another_user(client, user, token):

@@ -13,6 +13,7 @@ from fast_api_todo.schemas import (
 )
 from fast_api_todo.security import (
     create_access_token,
+    get_current_user,
     verify_password,
 )
 
@@ -37,3 +38,10 @@ def login_for_acess_token(
     access_token = create_access_token(data={'sub': user.email})
 
     return {'access_token': access_token, 'token_type': 'Bearer'}
+
+
+@router.post('/refresh_token', response_model=TokenSchema)
+def refresh_access_token(user: User = Depends(get_current_user)):
+    new_access_token = create_access_token(data={'sub': user.email})
+
+    return {'access_token': new_access_token, 'token_type': 'bearer'}
